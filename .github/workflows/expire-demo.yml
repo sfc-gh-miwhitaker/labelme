@@ -1,0 +1,57 @@
+# Auto-archive demo after expiration
+# Author: SE Community
+# Purpose: Automatically archive and make private after 30-day demo period
+# Expires: 2026-01-16
+
+name: Auto-Archive Expired Demo
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    # Allow manual trigger
+
+jobs:
+  check-expiration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check expiration date
+        id: check
+        run: |
+          EXPIRATION_DATE="2026-01-16"
+          CURRENT_DATE=$(date +%Y-%m-%d)
+          
+          if [[ "$CURRENT_DATE" > "$EXPIRATION_DATE" ]]; then
+            echo "expired=true" >> $GITHUB_OUTPUT
+            echo "Demo has expired (Current: $CURRENT_DATE, Expiration: $EXPIRATION_DATE)"
+          else
+            echo "expired=false" >> $GITHUB_OUTPUT
+            echo "Demo is still active (Current: $CURRENT_DATE, Expiration: $EXPIRATION_DATE)"
+          fi
+
+      - name: Archive repository
+        if: steps.check.outputs.expired == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Archive the repository
+            await github.rest.repos.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              archived: true
+            });
+            
+            console.log('Repository has been archived due to expiration.');
+
+      - name: Add expiration notice to README
+        if: steps.check.outputs.expired == 'true'
+        run: |
+          echo "## ⚠️ THIS DEMO HAS EXPIRED" > EXPIRED_NOTICE.md
+          echo "" >> EXPIRED_NOTICE.md
+          echo "This demonstration project expired on 2026-01-16." >> EXPIRED_NOTICE.md
+          echo "The code may contain outdated syntax or deprecated features." >> EXPIRED_NOTICE.md
+          echo "" >> EXPIRED_NOTICE.md
+          echo "Please contact the SE team for an updated version." >> EXPIRED_NOTICE.md
+

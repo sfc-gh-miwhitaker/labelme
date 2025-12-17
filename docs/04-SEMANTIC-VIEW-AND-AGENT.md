@@ -88,57 +88,61 @@ This guide explains the LabelMe semantic view and Snowflake Intelligence agent t
 
 The semantic view (`SV_LABELME_CATALOG`) follows these best practices:
 
-1. **Denormalization** - Joins all related tables for single query access
-2. **Business Terminology** - Column names match how business users speak
-3. **Calculated Metrics** - Pre-computed KPIs (engagement_score, performance_tier)
-4. **Temporal Context** - Time-based fields for trend analysis
-5. **Performance Optimization** - Appropriate aggregation level
+1. **Simple Table References** - Lists tables without complex joins (Cortex Analyst handles relationships)
+2. **Business Terminology** - Dimension/fact aliases match how business users speak
+3. **Fact/Dimension Separation** - Clear distinction between measures (FACTS) and attributes (DIMENSIONS)
+4. **Rich Synonyms** - Comments include natural language variations for better AI understanding
+5. **Verified Queries** - Embedded sample queries validate view functionality
 
-### Key Metrics Explained
+### Key Semantic Elements
 
-#### Engagement Score
-```sql
-engagement_score = (total_streams / 1000) × (1 - skip_rate) × (1 + save_rate)
-```
+#### FACTS (Numeric Measures)
+Quantifiable metrics that can be aggregated:
+- **MONTHLY_LISTENERS** - Audience reach indicator
+- **SOCIAL_FOLLOWERS** - Social media presence
+- **STREAM_COUNT** - Song popularity metric
+- **SKIP_RATE** - Listener retention (0-1 scale)
+- **SAVE_RATE** - Fan affinity (0-1 scale)
+- **PLAYLIST_ADDS** - Viral potential indicator
 
-**Why This Matters:**  
-Raw stream counts can be misleading (passive listening). Engagement score combines:
-- **Volume** - Total streams (normalized)
-- **Retention** - Low skip rate indicates quality
-- **Affinity** - High save rate indicates genuine fan interest
+#### DIMENSIONS (Filter Attributes)
+Categorical or temporal attributes for filtering:
+- **ARTIST_NAME** - Artist identification
+- **PRIMARY_GENRE** - Musical classification
+- **CONTRACT_END_DATE** - Renewal planning
+- **ALBUM_RELEASE_DATE** - Temporal analysis
+- **PLATFORM** - Streaming service
+- **REGION_CODE** - Geographic segmentation
 
-**Interpretation:**
-- `< 50` - Low engagement
-- `50-200` - Moderate engagement
-- `200-1000` - High engagement
-- `> 1000` - Exceptional engagement (potential hit)
-
-#### Performance Tier
-Categorizes songs based on total streams:
-- **Hit** - > 1M streams
-- **Popular** - 100K - 1M streams
-- **Growing** - 10K - 100K streams
-- **Emerging** - 1 - 10K streams
-- **New Release** - < 1 stream (just released)
-
-#### Contract Status
-Based on days until contract expiration:
-- **Expired** - Past end date (renewal negotiation critical)
-- **Critical** - < 30 days (immediate action required)
-- **Expiring Soon** - 30-90 days (renewal planning needed)
-- **Active** - > 90 days (monitoring only)
+#### Query Patterns
+Cortex Analyst generates SQL using:
+- Dimensions for filtering (WHERE/GROUP BY)
+- Facts for aggregation (SUM/AVG/COUNT)
+- Synonyms for natural language mapping
 
 ### Schema Reference
 
-| Column | Type | Description | Business Use |
-|--------|------|-------------|--------------|
-| `artist_name` | STRING | Artist full name | A&R, marketing campaigns |
-| `contract_days_remaining` | INT | Days until contract expires | Renewal planning |
-| `engagement_score` | FLOAT | Listener engagement metric | Marketing prioritization |
-| `performance_tier` | STRING | Song performance category | Playlist curation |
-| `primary_genre` | STRING | Main musical genre | Genre strategy analysis |
-| `total_streams` | INT | Aggregate stream count | Revenue forecasting |
-| `is_collaboration` | BOOLEAN | Features other artists | Collaboration strategy |
+**FACTS (Measures):**
+
+| Semantic Name | Source Column | Description |
+|---------------|---------------|-------------|
+| `MONTHLY_LISTENERS` | STG_ARTISTS.monthly_listeners | Audience size indicator |
+| `SOCIAL_FOLLOWERS` | STG_ARTISTS.social_followers | Social media reach |
+| `STREAM_COUNT` | STG_STREAMING_METRICS.stream_count | Individual stream events |
+| `SKIP_RATE` | STG_STREAMING_METRICS.skip_rate | Retention metric (0-1) |
+| `SAVE_RATE` | STG_STREAMING_METRICS.save_rate | Fan affinity (0-1) |
+| `PLAYLIST_ADDS` | STG_STREAMING_METRICS.playlist_adds | Viral potential |
+
+**DIMENSIONS (Attributes):**
+
+| Semantic Name | Source Column | Description |
+|---------------|---------------|-------------|
+| `ARTIST_NAME` | STG_ARTISTS.artist_name | Artist identification |
+| `PRIMARY_GENRE` | STG_ARTISTS.genre_primary | Musical classification |
+| `CONTRACT_END_DATE` | STG_ARTISTS.contract_end_date | Renewal planning date |
+| `SONG_TITLE` | STG_SONGS.song_title | Track identification |
+| `ALBUM_RELEASE_DATE` | STG_ALBUMS.release_date | Temporal analysis |
+| `PLATFORM` | STG_STREAMING_METRICS.platform | Streaming service |
 
 ---
 
@@ -246,53 +250,41 @@ All 5 queries are production-ready and tested against the semantic view.
 
 ```sql
 SELECT 
-    artist_name,
-    contract_end_date,
-    contract_days_remaining,
-    contract_status,
-    monthly_listeners,
-    total_streams,
-    engagement_score
+    ARTIST_NAME,
+    CONTRACT_END_DATE,
+    MONTHLY_LISTENERS
 FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG
-WHERE contract_status IN ('Critical', 'Expiring Soon')
-GROUP BY 
-    artist_name,
-    contract_end_date,
-    contract_days_remaining,
-    contract_status,
-    monthly_listeners,
-    total_streams,
-    engagement_score
-ORDER BY contract_days_remaining ASC;
+WHERE CONTRACT_END_DATE < DATEADD(day, 90, CURRENT_DATE())
+  AND CONTRACT_END_DATE >= CURRENT_DATE()
+ORDER BY CONTRACT_END_DATE ASC
+LIMIT 20;
 ```
 
 **Expected Output:**
-- Artists sorted by urgency (soonest expiration first)
-- Performance metrics to inform renewal terms
-- Social reach indicators (monthly_listeners)
+- Artists with contracts expiring in next 90 days
+- Sorted by expiration date (soonest first)
+- Includes audience size for renewal priority
 
 ---
 
-### Query 2: Top Performers by Engagement
+### Query 2: Top Performers by Streams
 
 ```sql
 SELECT 
-    song_title,
-    artist_name,
-    total_streams,
-    engagement_score,
-    performance_tier,
-    primary_genre
+    SONG_TITLE,
+    ARTIST_NAME,
+    SUM(STREAM_COUNT) as total_streams,
+    AVG(SKIP_RATE) as avg_skip_rate
 FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG
-WHERE song_id IS NOT NULL
-ORDER BY engagement_score DESC
+GROUP BY SONG_TITLE, ARTIST_NAME
+ORDER BY total_streams DESC
 LIMIT 10;
 ```
 
 **Expected Output:**
-- Top 10 songs by engagement (not just streams)
-- Genre context for marketing targeting
-- Performance tier classification
+- Top 10 songs by total stream count
+- Average skip rate indicates quality
+- Grouped across all platforms/regions
 
 ---
 
@@ -300,72 +292,60 @@ LIMIT 10;
 
 ```sql
 SELECT 
-    primary_genre,
-    COUNT(DISTINCT artist_name) as artist_count,
-    SUM(total_streams) as total_genre_streams,
-    AVG(engagement_score) as avg_engagement_score,
-    ROUND(AVG(avg_skip_rate) * 100, 2) as avg_skip_rate_pct
+    PRIMARY_GENRE,
+    COUNT(DISTINCT ARTIST_NAME) as artist_count,
+    SUM(STREAM_COUNT) as total_streams
 FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG
-WHERE primary_genre IS NOT NULL
-GROUP BY primary_genre
-ORDER BY total_genre_streams DESC;
+WHERE PRIMARY_GENRE IS NOT NULL
+GROUP BY PRIMARY_GENRE
+ORDER BY total_streams DESC;
 ```
 
 **Expected Output:**
-- Genre rankings by total streams
-- Artist depth per genre
-- Engagement quality metrics
+- Genres ranked by total stream volume
+- Number of artists per genre
+- Reveals market trends and opportunities
 
 ---
 
-### Query 4: Underperforming Recent Albums
+### Query 4: Recent Album Releases
 
 ```sql
 SELECT 
-    album_title,
-    artist_name,
-    album_release_date,
-    days_since_album_release,
-    SUM(total_streams) as album_total_streams,
-    AVG(engagement_score) as album_avg_engagement
+    ALBUM_TITLE,
+    ARTIST_NAME,
+    ALBUM_RELEASE_DATE,
+    ALBUM_TYPE
 FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG
-WHERE days_since_album_release <= 180
-  AND album_id IS NOT NULL
-GROUP BY 
-    album_title,
-    artist_name,
-    album_release_date,
-    days_since_album_release
-HAVING SUM(total_streams) < 100000
-ORDER BY album_total_streams ASC;
+WHERE ALBUM_RELEASE_DATE >= DATEADD(month, -6, CURRENT_DATE())
+GROUP BY ALBUM_TITLE, ARTIST_NAME, ALBUM_RELEASE_DATE, ALBUM_TYPE
+ORDER BY ALBUM_RELEASE_DATE DESC;
 ```
 
 **Expected Output:**
-- Recent albums with low stream counts
-- Days since release (urgency indicator)
-- Engagement scores (quality indicator)
+- Albums released in last 6 months
+- Shows new catalog additions
+- Includes album format (LP/EP/Single)
 
 ---
 
-### Query 5: Collaboration Performance Analysis
+### Query 5: Collaboration Analysis
 
 ```sql
 SELECT 
-    is_collaboration,
-    COUNT(DISTINCT song_id) as song_count,
-    AVG(total_streams) as avg_streams_per_song,
-    AVG(engagement_score) as avg_engagement,
-    COUNT(DISTINCT CASE WHEN performance_tier = 'Hit' THEN song_id END) as hit_count
+    ARTIST_NAME,
+    COUNT(DISTINCT SONG_TITLE) as collaboration_count
 FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG
-WHERE song_id IS NOT NULL
-GROUP BY is_collaboration
-ORDER BY is_collaboration DESC;
+WHERE FEATURING_ARTISTS IS NOT NULL
+GROUP BY ARTIST_NAME
+ORDER BY collaboration_count DESC
+LIMIT 20;
 ```
 
 **Expected Output:**
-- Solo vs collaboration performance comparison
-- Hit rate for each category
-- Average engagement differences
+- Artists ranked by number of collaborations
+- Identifies most collaborative artists
+- Informs partnership strategy
 
 ---
 

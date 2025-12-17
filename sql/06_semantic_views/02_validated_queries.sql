@@ -4,17 +4,18 @@
  * Purpose: 5 validated business questions with SQL queries
  * Expires: 2026-01-16
  * 
- * These queries represent common business questions that executives
- * and A&R teams ask about their music catalog.
+ * These queries demonstrate common business questions that executives
+ * and A&R teams ask about music catalog performance using the semantic view.
  */
 
 USE SCHEMA SNOWFLAKE_EXAMPLE.LABELME;
 
 -- ============================================================================
--- VALIDATED QUERY 1: Which artists have contracts expiring in the next 90 days?
+-- VALIDATED QUERY 1: Contract Expiration Alert
 -- ============================================================================
 -- Business Context: Contract renewal planning is critical for label operations.
--- A&R teams need advance notice to negotiate renewals with high-performing artists.
+-- A&R teams need 60-90 days advance notice to negotiate renewals with
+-- high-performing artists. This query identifies contracts requiring attention.
 -- ============================================================================
 
 SELECT 
@@ -43,11 +44,12 @@ ORDER BY contract_days_remaining ASC
 LIMIT 20;
 
 -- ============================================================================
--- VALIDATED QUERY 2: What are the top 10 performing songs by engagement score?
+-- VALIDATED QUERY 2: Top Performing Songs by Engagement
 -- ============================================================================
--- Business Context: Engagement score combines streams, skip rate, and save rate
--- to identify songs with genuine listener appeal (not just passive plays).
--- This helps identify which songs to promote in playlists and marketing.
+-- Business Context: Engagement score combines streams, skip rate, save rate,
+-- and playlist adds to identify songs with genuine listener appeal (not just
+-- passive plays). This helps identify which songs to promote in playlists,
+-- radio, and marketing campaigns.
 -- ============================================================================
 
 SELECT 
@@ -63,14 +65,26 @@ SELECT
     album_release_date
 FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG
 WHERE song_id IS NOT NULL
+GROUP BY 
+    song_title,
+    artist_name,
+    album_title,
+    total_streams,
+    avg_skip_rate,
+    avg_save_rate,
+    engagement_score,
+    performance_tier,
+    primary_genre,
+    album_release_date
 ORDER BY engagement_score DESC
 LIMIT 10;
 
 -- ============================================================================
--- VALIDATED QUERY 3: Which genres are performing best by total streams?
+-- VALIDATED QUERY 3: Genre Performance Analysis
 -- ============================================================================
 -- Business Context: Understanding genre performance helps labels decide where
 -- to invest in new artist signings and which genres to prioritize in A&R.
+-- This analysis reveals market trends and investment opportunities.
 -- ============================================================================
 
 SELECT 
@@ -88,11 +102,12 @@ GROUP BY primary_genre
 ORDER BY total_genre_streams DESC;
 
 -- ============================================================================
--- VALIDATED QUERY 4: Which albums released in the last 6 months are underperforming?
+-- VALIDATED QUERY 4: Underperforming Recent Album Releases
 -- ============================================================================
--- Business Context: Recently released albums with low engagement may need
--- additional marketing support or playlist placement to improve performance.
--- Early intervention can save a release from commercial failure.
+-- Business Context: First 6 months determine album commercial success.
+-- Recently released albums with low engagement may need additional marketing
+-- support, playlist placement, or promotional campaigns. Early intervention
+-- can save a release from commercial failure.
 -- ============================================================================
 
 SELECT 
@@ -126,11 +141,12 @@ ORDER BY album_total_streams ASC
 LIMIT 15;
 
 -- ============================================================================
--- VALIDATED QUERY 5: What is the collaboration rate and performance of featured songs?
+-- VALIDATED QUERY 5: Collaboration vs Solo Performance
 -- ============================================================================
--- Business Context: Collaborations (featuring other artists) often perform
--- better than solo releases. Understanding collaboration impact helps A&R
--- teams strategize about which artists to pair together.
+-- Business Context: Collaborations (featuring other artists) often outperform
+-- solo releases due to cross-fan exposure. Understanding collaboration impact
+-- helps A&R teams strategize about which artists to pair together and informs
+-- contract negotiation terms around collaboration clauses.
 -- ============================================================================
 
 SELECT 
@@ -149,10 +165,11 @@ GROUP BY is_collaboration
 ORDER BY is_collaboration DESC;
 
 -- ============================================================================
--- BONUS QUERY: Artist Performance Summary (Multi-dimensional Analysis)
+-- BONUS QUERY: Comprehensive Artist Portfolio Summary
 -- ============================================================================
--- Business Context: Comprehensive artist view combining contract status,
--- catalog size, streaming performance, and engagement for strategic decisions.
+-- Business Context: Executive dashboard view combining contract status,
+-- catalog size, streaming performance, and engagement for strategic decisions
+-- about artist investment, renewal priorities, and A&R resource allocation.
 -- ============================================================================
 
 SELECT 
@@ -184,7 +201,6 @@ ORDER BY total_artist_streams DESC
 LIMIT 20;
 
 -- ============================================================================
--- VERIFICATION: Query Performance Stats
+-- VERIFICATION
 -- ============================================================================
 SELECT 'All 5 validated queries executed successfully' as status;
-

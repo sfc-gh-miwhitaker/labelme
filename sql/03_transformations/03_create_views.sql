@@ -39,7 +39,15 @@ FROM STG_ARTISTS a
 LEFT JOIN STG_ALBUMS al ON a.artist_id = al.artist_id
 LEFT JOIN STG_SONGS s ON a.artist_id = s.artist_id
 LEFT JOIN STG_STREAMING_METRICS m ON s.song_id = m.song_id
-GROUP BY 1,2,3,4,5,6,7,8,13;
+GROUP BY 
+    a.artist_id,
+    a.artist_name,
+    a.country_code,
+    a.genre_primary,
+    a.monthly_listeners,
+    a.social_followers,
+    a.contract_end_date,
+    a.quality_score;
 
 -- ============================================================================
 -- CATALOG HEALTH VIEW

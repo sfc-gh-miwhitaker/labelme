@@ -61,7 +61,7 @@ st.markdown('<p class="sub-header">AI-Powered Music Data Quality Monitoring | SE
 
 # Sidebar
 with st.sidebar:
-    st.image("https://www.snowflake.com/wp-content/themes/flavor/flavor-starter/icons/snowflake-logo-color.svg", width=150)
+    st.markdown("# ❄️ Snowflake")
     st.markdown("---")
     st.markdown("### 📊 Dashboard Info")
     st.markdown("""
@@ -74,7 +74,7 @@ with st.sidebar:
     # Refresh button
     if st.button("🔄 Refresh Data", use_container_width=True):
         st.cache_data.clear()
-        st.rerun()
+        st.experimental_rerun()
 
 # Cache data queries
 @st.cache_data(ttl=300)  # Cache for 5 minutes
@@ -194,8 +194,7 @@ with tab1:
         st.markdown("### Quality Breakdown by Entity")
         st.dataframe(
             quality_df[['ENTITY', 'TOTAL_RECORDS', 'HIGH_QUALITY_COUNT', 'HIGH_QUALITY_PCT', 'STANDARDIZED_COUNT']],
-            use_container_width=True,
-            hide_index=True
+            use_container_width=True
         )
         
     except Exception as e:
@@ -239,8 +238,7 @@ with tab2:
             st.dataframe(
                 artists_df[['ARTIST_NAME', 'COUNTRY_CODE', 'GENRE_PRIMARY', 'TOTAL_STREAMS', 
                            'ALBUM_COUNT', 'SONG_COUNT', 'QUALITY_SCORE', 'CONTRACT_STATUS']],
-                use_container_width=True,
-                hide_index=True
+                use_container_width=True
             )
         else:
             st.info("No artist data available yet.")
@@ -335,7 +333,7 @@ with tab4:
         
         alerts_df = get_contract_alerts()
         if len(alerts_df) > 0:
-            st.dataframe(alerts_df, use_container_width=True, hide_index=True)
+            st.dataframe(alerts_df, use_container_width=True)
         else:
             st.success("No contract alerts at this time.")
             
@@ -351,26 +349,20 @@ with tab5:
         comparison_df = get_raw_vs_clean_sample()
         
         if len(comparison_df) > 0:
-            # Show comparison table
+            # Show comparison table with renamed columns for clarity
+            display_df = comparison_df.rename(columns={
+                'ARTIST_ID': 'ID',
+                'RAW_NAME': 'Raw Name',
+                'CLEAN_NAME': 'Clean Name',
+                'RAW_COUNTRY': 'Raw Country',
+                'CLEAN_COUNTRY': 'ISO Code',
+                'RAW_GENRE': 'Raw Genre',
+                'CLEAN_GENRE': 'Clean Genre',
+                'QUALITY_SCORE': 'Quality Score'
+            })
             st.dataframe(
-                comparison_df,
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "ARTIST_ID": "ID",
-                    "RAW_NAME": st.column_config.TextColumn("Raw Name", help="Original dirty data"),
-                    "CLEAN_NAME": st.column_config.TextColumn("Clean Name", help="AI-cleaned data"),
-                    "RAW_COUNTRY": st.column_config.TextColumn("Raw Country", help="Original format"),
-                    "CLEAN_COUNTRY": st.column_config.TextColumn("ISO Code", help="Standardized"),
-                    "RAW_GENRE": st.column_config.TextColumn("Raw Genre", help="Original format"),
-                    "CLEAN_GENRE": st.column_config.TextColumn("Clean Genre", help="Standardized"),
-                    "QUALITY_SCORE": st.column_config.ProgressColumn(
-                        "Quality",
-                        help="Data quality score",
-                        min_value=0,
-                        max_value=100,
-                    ),
-                }
+                display_df,
+                use_container_width=True
             )
             
             st.markdown("---")

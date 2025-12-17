@@ -37,18 +37,3 @@ DROP WAREHOUSE IF EXISTS SFE_LABELME_WH;
 -- NOTE: Only drop if this integration is not used by other projects
 -- DROP API INTEGRATION IF EXISTS SFE_LABELME_GIT_API_INTEGRATION;
 
--- ============================================================================
--- VERIFICATION
--- ============================================================================
-SELECT 'Cleanup verification' as status;
-
--- Should return 0 rows
-SELECT schema_name 
-FROM SNOWFLAKE_EXAMPLE.INFORMATION_SCHEMA.SCHEMATA
-WHERE schema_name LIKE 'LABELME%';
-
--- Should return 0 rows
-SHOW WAREHOUSES LIKE 'SFE_LABELME%';
-
-SELECT 'Cleanup completed successfully' as result;
-

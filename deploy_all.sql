@@ -26,7 +26,24 @@
  */
 
 -- ============================================================================
--- STEP 0: EXPIRATION CHECK (HALTS EXECUTION IF EXPIRED)
+-- STEP 1: SET CONTEXT
+-- ============================================================================
+USE ROLE ACCOUNTADMIN;
+
+-- ============================================================================
+-- STEP 2: CREATE WAREHOUSE (needed before any operations)
+-- ============================================================================
+CREATE WAREHOUSE IF NOT EXISTS SFE_LABELME_WH
+    WITH WAREHOUSE_SIZE = 'XSMALL'
+    AUTO_SUSPEND = 60
+    AUTO_RESUME = TRUE
+    INITIALLY_SUSPENDED = FALSE
+    COMMENT = 'DEMO: LabelMe Music Data Quality Pipeline | Author: SE Community | Expires: 2026-01-16';
+
+USE WAREHOUSE SFE_LABELME_WH;
+
+-- ============================================================================
+-- STEP 3: EXPIRATION CHECK (HALTS EXECUTION IF EXPIRED)
 -- ============================================================================
 EXECUTE IMMEDIATE
 $$
@@ -42,24 +59,7 @@ END;
 $$;
 
 -- ============================================================================
--- STEP 1: SET CONTEXT
--- ============================================================================
-USE ROLE ACCOUNTADMIN;
-
--- ============================================================================
--- STEP 2: CREATE WAREHOUSE (needed before Git operations)
--- ============================================================================
-CREATE WAREHOUSE IF NOT EXISTS SFE_LABELME_WH
-    WITH WAREHOUSE_SIZE = 'XSMALL'
-    AUTO_SUSPEND = 60
-    AUTO_RESUME = TRUE
-    INITIALLY_SUSPENDED = FALSE
-    COMMENT = 'DEMO: LabelMe Music Data Quality Pipeline | Author: SE Community | Expires: 2026-01-16';
-
-USE WAREHOUSE SFE_LABELME_WH;
-
--- ============================================================================
--- STEP 3: CREATE DATABASE AND SCHEMAS
+-- STEP 4: CREATE DATABASE AND SCHEMAS
 -- ============================================================================
 CREATE DATABASE IF NOT EXISTS SNOWFLAKE_EXAMPLE
     COMMENT = 'Shared database for SE demo projects';
@@ -74,7 +74,7 @@ CREATE SCHEMA IF NOT EXISTS SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS
     COMMENT = 'Shared semantic views for Cortex Analyst agents';
 
 -- ============================================================================
--- STEP 4: CREATE API INTEGRATION FOR GITHUB
+-- STEP 5: CREATE API INTEGRATION FOR GITHUB
 -- ============================================================================
 CREATE OR REPLACE API INTEGRATION SFE_LABELME_GIT_API_INTEGRATION
     API_PROVIDER = git_https_api
@@ -83,7 +83,7 @@ CREATE OR REPLACE API INTEGRATION SFE_LABELME_GIT_API_INTEGRATION
     COMMENT = 'DEMO: GitHub API integration for LabelMe | Author: SE Community | Expires: 2026-01-16';
 
 -- ============================================================================
--- STEP 5: CREATE GIT REPOSITORY AND FETCH
+-- STEP 6: CREATE GIT REPOSITORY AND FETCH
 -- ============================================================================
 CREATE OR REPLACE GIT REPOSITORY SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo
     API_INTEGRATION = SFE_LABELME_GIT_API_INTEGRATION
@@ -94,32 +94,32 @@ CREATE OR REPLACE GIT REPOSITORY SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme
 ALTER GIT REPOSITORY SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo FETCH;
 
 -- ============================================================================
--- STEP 6: EXECUTE SQL SCRIPTS FROM GIT REPOSITORY
+-- STEP 7: EXECUTE SQL SCRIPTS FROM GIT REPOSITORY
 -- ============================================================================
 
--- 6.1: Create tables
+-- 7.1: Create tables
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/02_data/01_create_tables.sql;
 
--- 6.2: Load sample data
+-- 7.2: Load sample data
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/02_data/02_load_sample_data.sql;
 
--- 6.3: Create streams for CDC
+-- 7.3: Create streams for CDC
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/03_transformations/01_create_streams.sql;
 
--- 6.4: Initial data cleaning (RAW to STG)
+-- 7.4: Initial data cleaning (RAW to STG)
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/03_transformations/02_initial_data_clean.sql;
 
--- 6.5: Create analytics views
+-- 7.5: Create analytics views
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/03_transformations/03_create_views.sql;
 
--- 6.6: Create scheduled tasks
+-- 7.6: Create scheduled tasks
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/03_transformations/04_create_tasks.sql;
 
--- 6.7: Create Streamlit dashboard
+-- 7.7: Create Streamlit dashboard
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/05_streamlit/01_create_streamlit.sql;
 
 -- ============================================================================
--- STEP 7: GRANT PERMISSIONS
+-- STEP 8: GRANT PERMISSIONS
 -- ============================================================================
 GRANT USAGE ON WAREHOUSE SFE_LABELME_WH TO ROLE PUBLIC;
 GRANT USAGE ON DATABASE SNOWFLAKE_EXAMPLE TO ROLE PUBLIC;
@@ -129,7 +129,7 @@ GRANT SELECT ON ALL VIEWS IN SCHEMA SNOWFLAKE_EXAMPLE.LABELME TO ROLE PUBLIC;
 GRANT USAGE ON STREAMLIT SNOWFLAKE_EXAMPLE.LABELME.LABELME_DASHBOARD TO ROLE PUBLIC;
 
 -- ============================================================================
--- STEP 8: VERIFICATION
+-- STEP 9: VERIFICATION
 -- ============================================================================
 SELECT 'Tables Created' as status, COUNT(*) as count 
 FROM SNOWFLAKE_EXAMPLE.INFORMATION_SCHEMA.TABLES 

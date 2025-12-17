@@ -133,12 +133,13 @@ def get_contract_alerts():
     """).to_pandas()
 
 # Main content with tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📈 Quality Overview", 
     "🎤 Artist Analytics", 
     "📊 Streaming Insights",
     "⚙️ Pipeline Monitor",
-    "🔍 Before/After"
+    "🔍 Before/After",
+    "🗺️ Data Model"
 ])
 
 # Tab 1: Quality Overview
@@ -392,6 +393,137 @@ Before: "canada"        →  After: "CA"
             
     except Exception as e:
         st.error(f"Error loading comparison data: {str(e)}")
+
+# Tab 6: Data Model
+with tab6:
+    st.markdown("### 🗺️ Entity Relationship Diagram")
+    st.markdown("This diagram shows the RAW (dirty) and STG (clean) table structure.")
+    
+    # Mermaid diagram code
+    mermaid_code = """erDiagram
+    RAW_ARTISTS ||--o{ RAW_ALBUMS : releases
+    RAW_ARTISTS ||--o{ RAW_SONGS : performs
+    RAW_ALBUMS ||--o{ RAW_SONGS : contains
+    RAW_SONGS ||--o{ RAW_STREAMING_METRICS : tracks
+    
+    STG_ARTISTS ||--|| RAW_ARTISTS : "cleaned from"
+    STG_ALBUMS ||--|| RAW_ALBUMS : "cleaned from"
+    STG_SONGS ||--|| RAW_SONGS : "cleaned from"
+    STG_STREAMING_METRICS ||--|| RAW_STREAMING_METRICS : "cleaned from"
+    
+    RAW_ARTISTS {
+        int artist_id PK
+        string artist_name "dirty"
+        string country_of_origin "dirty"
+        string genre_primary "dirty"
+        date contract_end_date
+    }
+    
+    RAW_ALBUMS {
+        int album_id PK
+        int artist_id FK
+        string album_title "dirty"
+        string album_type "dirty"
+        string label_name "dirty"
+    }
+    
+    RAW_SONGS {
+        int song_id PK
+        int album_id FK
+        int artist_id FK
+        string song_title "dirty"
+        string featuring_artists "dirty"
+    }
+    
+    RAW_STREAMING_METRICS {
+        int metric_id PK
+        int song_id FK
+        string platform "dirty"
+        string region "dirty"
+        int stream_count
+    }
+    
+    STG_ARTISTS {
+        int artist_id PK
+        string artist_name "cleaned"
+        string country_code "ISO"
+        string genre_primary "standardized"
+        decimal quality_score
+    }
+    
+    STG_ALBUMS {
+        int album_id PK
+        int artist_id FK
+        string album_title "cleaned"
+        string album_title_english
+        string label_name "standardized"
+    }
+    
+    STG_SONGS {
+        int song_id PK
+        int album_id FK
+        string song_title "cleaned"
+        string song_title_english
+        string featuring_artists "standardized"
+    }
+    
+    STG_STREAMING_METRICS {
+        int metric_id PK
+        int song_id FK
+        string platform "standardized"
+        string region_code "ISO"
+    }
+"""
+    
+    # Display rendered diagram using mermaid.ink
+    import base64
+    import urllib.parse
+    
+    # Encode the mermaid code
+    mermaid_bytes = mermaid_code.encode('utf-8')
+    mermaid_b64 = base64.b64encode(mermaid_bytes).decode('utf-8')
+    
+    # Create image URL
+    diagram_url = f"https://mermaid.ink/img/{mermaid_b64}"
+    
+    try:
+        st.image(diagram_url, use_column_width=True)
+    except Exception as e:
+        st.warning("Unable to render diagram image. See code below.")
+    
+    st.markdown("---")
+    
+    # Table descriptions
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### 📥 RAW Layer (Dirty Data)")
+        st.markdown("""
+        **Purpose:** Source data with quality issues
+        
+        - **RAW_ARTISTS**: Artist data with spelling errors, varied formats
+        - **RAW_ALBUMS**: Album catalog with inconsistent labels
+        - **RAW_SONGS**: Tracks with multi-language titles
+        - **RAW_STREAMING_METRICS**: Platform data with naming variations
+        """)
+    
+    with col2:
+        st.markdown("### ✨ STG Layer (Clean Data)")
+        st.markdown("""
+        **Purpose:** AI-cleaned, standardized data
+        
+        - **STG_ARTISTS**: Names corrected, ISO country codes
+        - **STG_ALBUMS**: Titles cleaned, English translations
+        - **STG_SONGS**: Standardized featuring artist format
+        - **STG_STREAMING_METRICS**: Standardized platform/region names
+        """)
+    
+    st.markdown("---")
+    
+    # Show raw Mermaid code
+    with st.expander("📋 View Mermaid Code"):
+        st.code(mermaid_code, language="mermaid")
+        st.markdown("[Edit this diagram in Mermaid Live Editor](https://mermaid.live/)")
 
 # Footer
 st.markdown("---")

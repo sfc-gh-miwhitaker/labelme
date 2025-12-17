@@ -118,6 +118,12 @@ EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/bra
 -- 7.7: Create Streamlit dashboard
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/05_streamlit/01_create_streamlit.sql;
 
+-- 7.8: Create semantic view for Cortex Analyst
+EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/06_semantic_views/01_create_semantic_view.sql;
+
+-- 7.9: Create Snowflake Intelligence agent (requires ACCOUNTADMIN)
+EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/06_semantic_views/03_create_intelligence_agent.sql;
+
 -- ============================================================================
 -- STEP 8: GRANT PERMISSIONS
 -- ============================================================================
@@ -127,6 +133,9 @@ GRANT USAGE ON SCHEMA SNOWFLAKE_EXAMPLE.LABELME TO ROLE PUBLIC;
 GRANT SELECT ON ALL TABLES IN SCHEMA SNOWFLAKE_EXAMPLE.LABELME TO ROLE PUBLIC;
 GRANT SELECT ON ALL VIEWS IN SCHEMA SNOWFLAKE_EXAMPLE.LABELME TO ROLE PUBLIC;
 GRANT USAGE ON STREAMLIT SNOWFLAKE_EXAMPLE.LABELME.LABELME_DASHBOARD TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG TO ROLE PUBLIC;
+GRANT USAGE ON AGENT LABELME_CATALOG_AGENT TO ROLE PUBLIC;
+GRANT APPLICATION ROLE SNOWFLAKE.CORTEX_USER TO ROLE PUBLIC;
 
 -- ============================================================================
 -- STEP 9: VERIFICATION
@@ -163,8 +172,12 @@ SELECT * FROM SNOWFLAKE_EXAMPLE.LABELME.V_DATA_QUALITY_SCORECARD;
 -- Next Steps:
 -- 1. Open Streamlit from the Snowsight sidebar
 -- 2. Click on LABELME_DASHBOARD to view the data quality dashboard
--- 3. Explore the data using the views created
--- 4. To enable the daily task: ALTER TASK SNOWFLAKE_EXAMPLE.LABELME.CLEAN_DATA_TASK RESUME;
+-- 3. Test the Intelligence Agent:
+--    - Navigate to: AI & ML → Agents → Snowflake Intelligence
+--    - Select: LabelMe Catalog Agent
+--    - Try: "Which artists have contracts expiring in the next 90 days?"
+-- 4. Explore the data using the views created
+-- 5. To enable the daily task: ALTER TASK SNOWFLAKE_EXAMPLE.LABELME.CLEAN_DATA_TASK RESUME;
 -- 
 -- For cleanup, run:
 -- EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/99_cleanup/teardown_all.sql;

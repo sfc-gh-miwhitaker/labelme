@@ -21,6 +21,18 @@ DROP TASK IF EXISTS SNOWFLAKE_EXAMPLE.LABELME.CLEAN_DATA_TASK;
 DROP STREAMLIT IF EXISTS SNOWFLAKE_EXAMPLE.LABELME.LABELME_DASHBOARD;
 
 -- ============================================================================
+-- STEP 2.5: Drop Semantic View and Intelligence Agent
+-- ============================================================================
+-- Drop Semantic View (in shared SEMANTIC_MODELS schema)
+DROP VIEW IF EXISTS SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG;
+
+-- Drop Intelligence Agent
+DROP AGENT IF EXISTS LABELME_CATALOG_AGENT;
+
+-- Note: We don't drop the Intelligence object itself as it may contain other agents
+-- If you need to remove it: DROP SNOWFLAKE INTELLIGENCE IF EXISTS SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;
+
+-- ============================================================================
 -- STEP 3: Drop project schemas (CASCADE drops all objects within)
 -- ============================================================================
 DROP SCHEMA IF EXISTS SNOWFLAKE_EXAMPLE.LABELME CASCADE;

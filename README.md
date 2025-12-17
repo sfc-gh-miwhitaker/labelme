@@ -54,8 +54,10 @@ Follow these steps in order:
 | **Streams** | ARTISTS_STREAM, ALBUMS_STREAM, SONGS_STREAM, METRICS_STREAM | CDC tracking |
 | **Task** | CLEAN_DATA_TASK | Daily pipeline automation |
 | **Views** | V_ARTIST_PERFORMANCE, V_CATALOG_HEALTH, V_STREAMING_TRENDS, V_DATA_QUALITY_SCORECARD | Analytics |
+| **Semantic View** | SV_LABELME_CATALOG (in SEMANTIC_MODELS schema) | Natural language query interface |
 | **DMFs** | DMF_NAME_CONSISTENCY, DMF_GENRE_STANDARDIZATION, DMF_TRANSLATION_COVERAGE, DMF_METADATA_COMPLETENESS | Quality metrics |
 | **Streamlit** | LABELME_DASHBOARD | Data quality monitoring UI |
+| **Agent** | LABELME_CATALOG_AGENT | Cortex Analyst AI assistant |
 
 ### Account-Level Objects
 
@@ -63,6 +65,7 @@ Follow these steps in order:
 |-------------|------|---------|
 | **Warehouse** | SFE_LABELME_WH | X-SMALL compute |
 | **API Integration** | SFE_LABELME_GIT_API_INTEGRATION | GitHub access |
+| **Intelligence Object** | SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT | Agent registry (shared) |
 
 ---
 
@@ -153,6 +156,7 @@ labelme/
 - [Deployment Guide](docs/01-DEPLOYMENT.md)
 - [Usage Guide](docs/02-USAGE.md)
 - [Cleanup Guide](docs/03-CLEANUP.md)
+- [Semantic View & Agent Guide](docs/04-SEMANTIC-VIEW-AND-AGENT.md) ⭐ NEW
 - [Data Model Diagram](diagrams/data-model.md)
 - [Data Flow Diagram](diagrams/data-flow.md)
 
@@ -164,6 +168,8 @@ labelme/
 |---------|-------|
 | **Cortex COMPLETE** | Text cleaning, spelling/capitalization fixes |
 | **Cortex TRANSLATE** | Multi-language to English translation |
+| **Cortex Analyst** | Natural language queries with AI agent |
+| **Snowflake Intelligence** | Unified agent interface for end users |
 | **Data Metric Functions** | Automated quality monitoring |
 | **Streams** | Change data capture for incremental processing |
 | **Tasks** | Scheduled daily pipeline execution |

@@ -41,7 +41,7 @@ BEGIN
             contract_end_date,
             social_followers,
             monthly_listeners,
-            ROUND(RANDOM() * 30 + 70, 2) as quality_score
+            ROUND(70 + MOD(artist_id, 30) + (MOD(artist_id * 7, 100) / 100.0), 2) as quality_score
         FROM ARTISTS_STREAM
         WHERE METADATA$ACTION = 'INSERT'
     ) s

@@ -43,8 +43,8 @@ SELECT
     contract_end_date,
     social_followers,
     monthly_listeners,
-    -- Quality score based on how much cleaning was needed
-    ROUND(70 + RANDOM() * 30, 2) as quality_score
+    -- Quality score based on how much cleaning was needed (deterministic)
+    ROUND(70 + MOD(artist_id, 30) + (MOD(artist_id * 7, 100) / 100.0), 2) as quality_score
 FROM RAW_ARTISTS;
 
 -- ============================================================================

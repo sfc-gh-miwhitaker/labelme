@@ -144,120 +144,123 @@ GROUP BY
 -- ============================================================================
 CREATE OR REPLACE SEMANTIC VIEW SV_LABELME_CATALOG
 TABLES (
-    V_LABELME_CATALOG_AGGREGATED
+    catalog AS V_LABELME_CATALOG_AGGREGATED
+        UNIQUE (artist_id, album_id, song_id)
+        WITH SYNONYMS ('music catalog', 'artist catalog', 'song catalog', 'streaming catalog')
+        COMMENT = 'Aggregated music catalog with performance metrics and engagement scores'
 )
 FACTS (
-  V_LABELME_CATALOG_AGGREGATED.monthly_listeners as MONTHLY_LISTENERS
-    comment='Number of unique monthly listeners on streaming platforms. Higher values indicate larger audience reach. Synonyms: monthly listeners, listeners, audience size, monthly audience, listener count.',
+  catalog.monthly_listeners as MONTHLY_LISTENERS
+    COMMENT = 'Number of unique monthly listeners on streaming platforms. Higher values indicate larger audience reach. Synonyms: monthly listeners, listeners, audience size, monthly audience, listener count.',
   
-  V_LABELME_CATALOG_AGGREGATED.social_followers as SOCIAL_FOLLOWERS
-    comment='Total social media followers across all platforms (Instagram, Twitter, TikTok, etc). Indicates social media reach and fan engagement. Synonyms: followers, fans, social media followers, social following, social reach.',
+  catalog.social_followers as SOCIAL_FOLLOWERS
+    COMMENT = 'Total social media followers across all platforms (Instagram, Twitter, TikTok, etc). Indicates social media reach and fan engagement. Synonyms: followers, fans, social media followers, social following, social reach.',
   
-  V_LABELME_CATALOG_AGGREGATED.artist_data_quality_score as ARTIST_DATA_QUALITY_SCORE
-    comment='Data quality score (0-100) for artist metadata completeness and accuracy. Higher scores indicate cleaner data. Synonyms: data quality, quality score, metadata quality, artist data quality.',
+  catalog.artist_data_quality_score as ARTIST_DATA_QUALITY_SCORE
+    COMMENT = 'Data quality score (0-100) for artist metadata completeness and accuracy. Higher scores indicate cleaner data. Synonyms: data quality, quality score, metadata quality, artist data quality.',
   
-  V_LABELME_CATALOG_AGGREGATED.album_track_count as ALBUM_TRACK_COUNT
-    comment='Number of tracks on the album. LP albums typically have 10-15 tracks, EPs have 4-7 tracks. Synonyms: track count, number of tracks, tracks on album, song count.',
+  catalog.album_track_count as ALBUM_TRACK_COUNT
+    COMMENT = 'Number of tracks on the album. LP albums typically have 10-15 tracks, EPs have 4-7 tracks. Synonyms: track count, number of tracks, tracks on album, song count.',
   
-  V_LABELME_CATALOG_AGGREGATED.duration_seconds as DURATION_SECONDS
-    comment='Song duration in seconds. Typical pop songs are 180-240 seconds (3-4 minutes). Synonyms: duration, length, song length, runtime, play time.',
+  catalog.duration_seconds as DURATION_SECONDS
+    COMMENT = 'Song duration in seconds. Typical pop songs are 180-240 seconds (3-4 minutes). Synonyms: duration, length, song length, runtime, play time.',
   
-  V_LABELME_CATALOG_AGGREGATED.total_streams as TOTAL_STREAMS
-    comment='Total number of times the song was streamed across all platforms and regions. Aggregated metric indicating overall popularity. Synonyms: streams, plays, total plays, stream count, total streams.',
+  catalog.total_streams as TOTAL_STREAMS
+    COMMENT = 'Total number of times the song was streamed across all platforms and regions. Aggregated metric indicating overall popularity. Synonyms: streams, plays, total plays, stream count, total streams.',
   
-  V_LABELME_CATALOG_AGGREGATED.avg_skip_rate as AVG_SKIP_RATE
-    comment='Average percentage of listeners who skipped the song before completion (0-1, where 0.20 = 20%). Lower values indicate better listener retention. Synonyms: skip rate, skips, skip percentage, listener drop-off.',
+  catalog.avg_skip_rate as AVG_SKIP_RATE
+    COMMENT = 'Average percentage of listeners who skipped the song before completion (0-1, where 0.20 = 20%). Lower values indicate better listener retention. Synonyms: skip rate, skips, skip percentage, listener drop-off.',
   
-  V_LABELME_CATALOG_AGGREGATED.avg_save_rate as AVG_SAVE_RATE
-    comment='Average percentage of listeners who saved the song to their library (0-1, where 0.15 = 15%). Higher values indicate strong listener affinity. Synonyms: save rate, saves, add to library rate, library adds.',
+  catalog.avg_save_rate as AVG_SAVE_RATE
+    COMMENT = 'Average percentage of listeners who saved the song to their library (0-1, where 0.15 = 15%). Higher values indicate strong listener affinity. Synonyms: save rate, saves, add to library rate, library adds.',
   
-  V_LABELME_CATALOG_AGGREGATED.total_playlist_adds as TOTAL_PLAYLIST_ADDS
-    comment='Total number of times the song was added to user-created playlists across all platforms. High playlist adds indicate viral potential. Synonyms: playlist adds, added to playlists, playlist inclusion.',
+  catalog.total_playlist_adds as TOTAL_PLAYLIST_ADDS
+    COMMENT = 'Total number of times the song was added to user-created playlists across all platforms. High playlist adds indicate viral potential. Synonyms: playlist adds, added to playlists, playlist inclusion.',
   
-  V_LABELME_CATALOG_AGGREGATED.engagement_score as ENGAGEMENT_SCORE
-    comment='Composite engagement score calculated from streams, skip rate, save rate, and playlist adds. Higher scores indicate stronger overall listener engagement and hit potential. Synonyms: engagement, engagement metric, performance score, hit score.',
+  catalog.engagement_score as ENGAGEMENT_SCORE
+    COMMENT = 'Composite engagement score calculated from streams, skip rate, save rate, and playlist adds. Higher scores indicate stronger overall listener engagement and hit potential. Synonyms: engagement, engagement metric, performance score, hit score.',
   
-  V_LABELME_CATALOG_AGGREGATED.contract_days_remaining as CONTRACT_DAYS_REMAINING
-    comment='Number of days until artist contract expires. Negative values indicate expired contracts. Critical for renewal planning. Synonyms: days remaining, days to expiration, days until renewal.',
+  catalog.contract_days_remaining as CONTRACT_DAYS_REMAINING
+    COMMENT = 'Number of days until artist contract expires. Negative values indicate expired contracts. Critical for renewal planning. Synonyms: days remaining, days to expiration, days until renewal.',
   
-  V_LABELME_CATALOG_AGGREGATED.days_since_album_release as DAYS_SINCE_ALBUM_RELEASE
-    comment='Number of days since album was released. Use for analyzing new releases vs catalog performance. Synonyms: days since release, album age, time since release.'
+  catalog.days_since_album_release as DAYS_SINCE_ALBUM_RELEASE
+    COMMENT = 'Number of days since album was released. Use for analyzing new releases vs catalog performance. Synonyms: days since release, album age, time since release.'
 )
 DIMENSIONS (
-  V_LABELME_CATALOG_AGGREGATED.artist_id as ARTIST_ID
-    comment='Unique artist identifier. Use for joining or tracking specific artists. Synonyms: artist ID, artist identifier.',
+  catalog.artist_id as ARTIST_ID
+    COMMENT = 'Unique artist identifier. Use for joining or tracking specific artists. Synonyms: artist ID, artist identifier.',
   
-  V_LABELME_CATALOG_AGGREGATED.artist_name as ARTIST_NAME
-    comment='Name of the artist or band (e.g., "Taylor Swift", "The Beatles", "BTS"). Synonyms: artist, artist name, performer, musician, band name.',
+  catalog.artist_name as ARTIST_NAME
+    COMMENT = 'Name of the artist or band (e.g., "Taylor Swift", "The Beatles", "BTS"). Synonyms: artist, artist name, performer, musician, band name.',
   
-  V_LABELME_CATALOG_AGGREGATED.artist_country as ARTIST_COUNTRY
-    comment='Two-letter country code of artist origin (ISO 3166-1 alpha-2, e.g., US, GB, KR, JP). Synonyms: country, artist country, origin, nationality, home country.',
+  catalog.artist_country as ARTIST_COUNTRY
+    COMMENT = 'Two-letter country code of artist origin (ISO 3166-1 alpha-2, e.g., US, GB, KR, JP). Synonyms: country, artist country, origin, nationality, home country.',
   
-  V_LABELME_CATALOG_AGGREGATED.primary_genre as PRIMARY_GENRE
-    comment='Primary musical genre (e.g., Pop, Hip-Hop, Rock, R&B, Country, Electronic). Synonyms: genre, primary genre, music genre, main genre, style.',
+  catalog.primary_genre as PRIMARY_GENRE
+    COMMENT = 'Primary musical genre (e.g., Pop, Hip-Hop, Rock, R&B, Country, Electronic). Synonyms: genre, primary genre, music genre, main genre, style.',
   
-  V_LABELME_CATALOG_AGGREGATED.secondary_genre as SECONDARY_GENRE
-    comment='Secondary or sub-genre classification. Synonyms: secondary genre, sub-genre, secondary style.',
+  catalog.secondary_genre as SECONDARY_GENRE
+    COMMENT = 'Secondary or sub-genre classification. Synonyms: secondary genre, sub-genre, secondary style.',
   
-  V_LABELME_CATALOG_AGGREGATED.label_signed_date as LABEL_SIGNED_DATE
-    comment='Date the artist signed with the record label. Use for tracking contract tenure. Synonyms: signed date, contract start, signing date, deal date.',
+  catalog.label_signed_date as LABEL_SIGNED_DATE
+    COMMENT = 'Date the artist signed with the record label. Use for tracking contract tenure. Synonyms: signed date, contract start, signing date, deal date.',
   
-  V_LABELME_CATALOG_AGGREGATED.contract_end_date as CONTRACT_END_DATE
-    comment='Contract expiration date. Critical for renewal planning and A&R strategy. Synonyms: contract end, contract expiration, contract expires, end date, expiration date.',
+  catalog.contract_end_date as CONTRACT_END_DATE
+    COMMENT = 'Contract expiration date. Critical for renewal planning and A&R strategy. Synonyms: contract end, contract expiration, contract expires, end date, expiration date.',
   
-  V_LABELME_CATALOG_AGGREGATED.contract_status as CONTRACT_STATUS
-    comment='Contract status category: Expired, Critical (<=30 days), Expiring Soon (<=90 days), Renewal Upcoming (<=180 days), or Active. Synonyms: status, contract status, contract state.',
+  catalog.contract_status as CONTRACT_STATUS
+    COMMENT = 'Contract status category: Expired, Critical (<=30 days), Expiring Soon (<=90 days), Renewal Upcoming (<=180 days), or Active. Synonyms: status, contract status, contract state.',
   
-  V_LABELME_CATALOG_AGGREGATED.album_id as ALBUM_ID
-    comment='Unique album identifier. Use for joining or tracking specific albums. Synonyms: album ID, album identifier.',
+  catalog.album_id as ALBUM_ID
+    COMMENT = 'Unique album identifier. Use for joining or tracking specific albums. Synonyms: album ID, album identifier.',
   
-  V_LABELME_CATALOG_AGGREGATED.album_title as ALBUM_TITLE
-    comment='Title of the album or record. Synonyms: album, album name, album title, record title, release name.',
+  catalog.album_title as ALBUM_TITLE
+    COMMENT = 'Title of the album or record. Synonyms: album, album name, album title, record title, release name.',
   
-  V_LABELME_CATALOG_AGGREGATED.album_title_english as ALBUM_TITLE_ENGLISH
-    comment='English translation of album title for non-English releases. NULL if original is English. Synonyms: english title, translated title.',
+  catalog.album_title_english as ALBUM_TITLE_ENGLISH
+    COMMENT = 'English translation of album title for non-English releases. NULL if original is English. Synonyms: english title, translated title.',
   
-  V_LABELME_CATALOG_AGGREGATED.album_release_date as ALBUM_RELEASE_DATE
-    comment='Album release date. Use for analyzing new releases vs catalog performance. Synonyms: release date, released on, came out, launch date.',
+  catalog.album_release_date as ALBUM_RELEASE_DATE
+    COMMENT = 'Album release date. Use for analyzing new releases vs catalog performance. Synonyms: release date, released on, came out, launch date.',
   
-  V_LABELME_CATALOG_AGGREGATED.album_type as ALBUM_TYPE
-    comment='Album format type: LP (full-length album), EP (extended play), or Single. Synonyms: type, format, release type, album format.',
+  catalog.album_type as ALBUM_TYPE
+    COMMENT = 'Album format type: LP (full-length album), EP (extended play), or Single. Synonyms: type, format, release type, album format.',
   
-  V_LABELME_CATALOG_AGGREGATED.label_name as LABEL_NAME
-    comment='Record label that released the album. Synonyms: label, record label, music label, publisher.',
+  catalog.label_name as LABEL_NAME
+    COMMENT = 'Record label that released the album. Synonyms: label, record label, music label, publisher.',
   
-  V_LABELME_CATALOG_AGGREGATED.distribution_region as DISTRIBUTION_REGION
-    comment='Primary distribution region or territory for the album release. Synonyms: region, distribution, territory, market.',
+  catalog.distribution_region as DISTRIBUTION_REGION
+    COMMENT = 'Primary distribution region or territory for the album release. Synonyms: region, distribution, territory, market.',
   
-  V_LABELME_CATALOG_AGGREGATED.song_id as SONG_ID
-    comment='Unique song identifier. Use for joining or tracking specific songs. Synonyms: song ID, song identifier, track ID.',
+  catalog.song_id as SONG_ID
+    COMMENT = 'Unique song identifier. Use for joining or tracking specific songs. Synonyms: song ID, song identifier, track ID.',
   
-  V_LABELME_CATALOG_AGGREGATED.song_title as SONG_TITLE
-    comment='Title of the song or track. Synonyms: song, track, song title, track title, song name, track name.',
+  catalog.song_title as SONG_TITLE
+    COMMENT = 'Title of the song or track. Synonyms: song, track, song title, track title, song name, track name.',
   
-  V_LABELME_CATALOG_AGGREGATED.song_title_english as SONG_TITLE_ENGLISH
-    comment='English translation of song title for non-English songs. NULL if original is English. Synonyms: english title, translated title.',
+  catalog.song_title_english as SONG_TITLE_ENGLISH
+    COMMENT = 'English translation of song title for non-English songs. NULL if original is English. Synonyms: english title, translated title.',
   
-  V_LABELME_CATALOG_AGGREGATED.is_explicit as IS_EXPLICIT
-    comment='Whether the song contains explicit content (TRUE/FALSE). Explicit songs may have restricted airplay. Synonyms: explicit, explicit content, parental advisory.',
+  catalog.is_explicit as IS_EXPLICIT
+    COMMENT = 'Whether the song contains explicit content (TRUE/FALSE). Explicit songs may have restricted airplay. Synonyms: explicit, explicit content, parental advisory.',
   
-  V_LABELME_CATALOG_AGGREGATED.language_original as LANGUAGE_ORIGINAL
-    comment='Original language of the song (e.g., "en" for English, "es" for Spanish, "ko" for Korean). Synonyms: language, original language, song language.',
+  catalog.language_original as LANGUAGE_ORIGINAL
+    COMMENT = 'Original language of the song (e.g., "en" for English, "es" for Spanish, "ko" for Korean). Synonyms: language, original language, song language.',
   
-  V_LABELME_CATALOG_AGGREGATED.featuring_artists as FEATURING_ARTISTS
-    comment='Featured or collaborating artists (e.g., "feat. Drake", "feat. Ariana Grande"). NULL if solo track. Synonyms: featuring, featured artists, collaboration, feat, collab, guest artists.',
+  catalog.featuring_artists as FEATURING_ARTISTS
+    COMMENT = 'Featured or collaborating artists (e.g., "feat. Drake", "feat. Ariana Grande"). NULL if solo track. Synonyms: featuring, featured artists, collaboration, feat, collab, guest artists.',
   
-  V_LABELME_CATALOG_AGGREGATED.is_collaboration as IS_COLLABORATION
-    comment='Boolean flag indicating whether song is a collaboration with featured artists (TRUE) or solo (FALSE). Synonyms: collaboration flag, is collab, has features.',
+  catalog.is_collaboration as IS_COLLABORATION
+    COMMENT = 'Boolean flag indicating whether song is a collaboration with featured artists (TRUE) or solo (FALSE). Synonyms: collaboration flag, is collab, has features.',
   
-  V_LABELME_CATALOG_AGGREGATED.isrc_code as ISRC_CODE
-    comment='International Standard Recording Code - unique identifier for sound recordings. Synonyms: ISRC, code, recording code.',
+  catalog.isrc_code as ISRC_CODE
+    COMMENT = 'International Standard Recording Code - unique identifier for sound recordings. Synonyms: ISRC, code, recording code.',
   
-  V_LABELME_CATALOG_AGGREGATED.track_number as TRACK_NUMBER
-    comment='Track position on the album (1 = first track, etc.). Synonyms: track number, track position, album position, track order.',
+  catalog.track_number as TRACK_NUMBER
+    COMMENT = 'Track position on the album (1 = first track, etc.). Synonyms: track number, track position, album position, track order.',
   
-  V_LABELME_CATALOG_AGGREGATED.performance_tier as PERFORMANCE_TIER
-    comment='Performance tier classification: Hit, Popular, Growing, or Emerging based on engagement score thresholds. Synonyms: tier, performance level, hit status.'
+  catalog.performance_tier as PERFORMANCE_TIER
+    COMMENT = 'Performance tier classification: Hit, Popular, Growing, or Emerging based on engagement score thresholds. Synonyms: tier, performance level, hit status.'
 )
 COMMENT = 'DEMO: LabelMe music catalog analytics for Cortex Analyst. Ask about artist performance, contract renewals, streaming metrics, album releases, and genre trends. Author: SE Community | Expires: 2026-01-16'
 WITH EXTENSION (CA = '{
@@ -296,18 +299,3 @@ WITH EXTENSION (CA = '{
 GRANT SELECT ON VIEW SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.V_LABELME_CATALOG_BASE TO ROLE PUBLIC;
 GRANT SELECT ON VIEW SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.V_LABELME_CATALOG_AGGREGATED TO ROLE PUBLIC;
 GRANT SELECT ON SEMANTIC VIEW SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG TO ROLE PUBLIC;
-
--- ============================================================================
--- VERIFICATION
--- ============================================================================
-SELECT 'Base view row count: ' || COUNT(*) as verification 
-FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.V_LABELME_CATALOG_BASE;
-
-SELECT 'Aggregated view row count: ' || COUNT(*) as verification
-FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.V_LABELME_CATALOG_AGGREGATED;
-
-SELECT 'Semantic view created successfully' as status;
-SHOW SEMANTIC VIEWS LIKE 'SV_LABELME_CATALOG';
-
-SELECT 'Sample data from semantic view:' as info;
-SELECT * FROM SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.SV_LABELME_CATALOG LIMIT 5;

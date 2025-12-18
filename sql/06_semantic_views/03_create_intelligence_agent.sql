@@ -21,11 +21,11 @@ USE ROLE ACCOUNTADMIN;
 CREATE SNOWFLAKE INTELLIGENCE IF NOT EXISTS SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
 COMMENT = 'Default Snowflake Intelligence object for agent management';
 
--- Grant USAGE to PUBLIC so users can discover agents in Snowflake Intelligence
-GRANT USAGE ON SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT TO ROLE PUBLIC;
-
 -- Grant MODIFY to SYSADMIN for managing the agent list
 GRANT MODIFY ON SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT TO ROLE SYSADMIN;
+
+-- Note: Grant USAGE on this object to specific roles as needed for your security model
+-- Example: GRANT USAGE ON SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT TO ROLE <your_role>;
 
 -- ============================================================================
 -- STEP 2: Create Cortex Agent with Semantic View
@@ -93,14 +93,11 @@ ADD AGENT SNOWFLAKE_EXAMPLE.SEMANTIC_MODELS.LABELME_CATALOG_AGENT;
 -- ============================================================================
 -- STEP 4: Grant Agent Access
 -- ============================================================================
--- Users need USAGE on the agent to interact with it
--- They also need SELECT on the underlying semantic view (granted separately)
+-- Grant USAGE on the agent to specific roles as needed for your security model
+-- Users also need SELECT on the underlying semantic view (granted separately)
+-- Example: GRANT USAGE ON AGENT LABELME_CATALOG_AGENT TO ROLE <your_role>;
+-- Example: GRANT APPLICATION ROLE SNOWFLAKE.CORTEX_USER TO ROLE <your_role>;
 -- ============================================================================
-
-GRANT USAGE ON AGENT LABELME_CATALOG_AGENT TO ROLE PUBLIC;
-
--- Grant CORTEX_USER application role to PUBLIC for Cortex functions
-GRANT APPLICATION ROLE SNOWFLAKE.CORTEX_USER TO ROLE PUBLIC;
 
 -- ============================================================================
 -- STEP 5: Verify Setup

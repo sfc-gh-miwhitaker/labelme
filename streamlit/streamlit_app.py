@@ -14,7 +14,7 @@ import pandas as pd
 
 # Page configuration
 st.set_page_config(
-    page_title="LabelMe Data Quality",
+    page_title="SFE LabelMe Dashboard",
     page_icon="🎵",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -56,7 +56,7 @@ st.markdown("""
 session = get_active_session()
 
 # Header
-st.markdown('<p class="main-header">🎵 LabelMe Data Quality Dashboard</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-header">🎵 SFE LabelMe Dashboard</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-header">AI-Powered Music Data Quality Monitoring | SE Community Demo</p>', unsafe_allow_html=True)
 
 # Sidebar

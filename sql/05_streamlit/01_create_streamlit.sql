@@ -17,6 +17,7 @@ CREATE OR REPLACE STREAMLIT LABELME_DASHBOARD
     FROM '@SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/streamlit'
     MAIN_FILE = 'streamlit_app.py'
     QUERY_WAREHOUSE = SFE_LABELME_WH
+    TITLE = 'SFE LabelMe Dashboard'
     COMMENT = 'DEMO: LabelMe Data Quality Dashboard | Author: SE Community | Expires: 2026-01-16';
 
 -- Grant access to PUBLIC role for demo accessibility

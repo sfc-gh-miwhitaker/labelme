@@ -115,6 +115,15 @@ EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/bra
 -- 7.6: Create scheduled tasks
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/03_transformations/04_create_tasks.sql;
 
+-- ============================================================================
+-- OPTIONAL: Modern Alternative - Dynamic Tables (replaces Streams + Tasks)
+-- ============================================================================
+-- UNCOMMENT THE LINE BELOW to use Dynamic Tables instead of Streams + Tasks
+-- This modern pattern offers 60% code reduction and automatic optimization
+-- For migration guide, see sql/03_transformations/05_create_dynamic_tables.sql
+-- ============================================================================
+-- EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/03_transformations/05_create_dynamic_tables.sql;
+
 -- 7.7: Create Streamlit dashboard
 EXECUTE IMMEDIATE FROM @SNOWFLAKE_EXAMPLE.LABELME_GIT_REPOS.sfe_labelme_repo/branches/main/sql/05_streamlit/01_create_streamlit.sql;
 

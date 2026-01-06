@@ -19,7 +19,7 @@ USE WAREHOUSE SFE_LABELME_WH;
 -- Demo: Single name correction
 SELECT 
     'Bettles' as dirty_name,
-    TRIM(SNOWFLAKE.CORTEX.COMPLETE(
+    TRIM(AI_COMPLETE(
         'mistral-7b',
         'Correct the spelling of this music artist name. Return ONLY the corrected name, nothing else: Bettles'
     )) as cleaned_name;
@@ -27,7 +27,7 @@ SELECT
 -- Demo: Fix capitalization
 SELECT 
     'TAYLOR swift' as dirty_name,
-    TRIM(SNOWFLAKE.CORTEX.COMPLETE(
+    TRIM(AI_COMPLETE(
         'mistral-7b',
         'Fix the capitalization of this music artist name. Return ONLY the properly capitalized name: TAYLOR swift'
     )) as cleaned_name;
@@ -35,7 +35,7 @@ SELECT
 -- Demo: Multiple corrections at once
 SELECT 
     artist_name as original,
-    TRIM(SNOWFLAKE.CORTEX.COMPLETE(
+    TRIM(AI_COMPLETE(
         'mistral-7b',
         'Correct the spelling and capitalization of this music artist name. Return ONLY the corrected name, nothing else: ' || artist_name
     )) as corrected
@@ -80,7 +80,7 @@ LIMIT 10;
 -- Demo: Standardize messy genre names
 SELECT 
     genre_primary as original_genre,
-    TRIM(SNOWFLAKE.CORTEX.COMPLETE(
+    TRIM(AI_COMPLETE(
         'mistral-7b',
         'Standardize this music genre name to a standard format (e.g., Rock, Pop, Hip-Hop, R&B, Country, Electronic, Jazz, Classical). Return ONLY the standardized genre name: ' || genre_primary
     )) as standardized_genre
@@ -101,7 +101,7 @@ CREATE OR REPLACE TEMPORARY TABLE cortex_batch_results AS
 SELECT 
     artist_id,
     artist_name as original_name,
-    TRIM(SNOWFLAKE.CORTEX.COMPLETE(
+    TRIM(AI_COMPLETE(
         'mistral-7b',
         'Fix the spelling and capitalization of this artist name. Return ONLY the corrected name: ' || artist_name
     )) as cleaned_name

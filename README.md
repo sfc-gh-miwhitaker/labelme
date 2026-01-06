@@ -157,6 +157,7 @@ labelme/
 - [Usage Guide](docs/02-USAGE.md)
 - [Cleanup Guide](docs/03-CLEANUP.md)
 - [Semantic View & Agent Guide](docs/04-SEMANTIC-VIEW-AND-AGENT.md) ⭐ NEW
+- [Dynamic Tables Migration Guide](docs/05-DYNAMIC-TABLES-MIGRATION.md) 🆕 OPTIONAL
 - [Data Model Diagram](diagrams/data-model.md)
 - [Data Flow Diagram](diagrams/data-flow.md)
 
@@ -166,13 +167,13 @@ labelme/
 
 | Feature | Usage |
 |---------|-------|
-| **Cortex COMPLETE** | Text cleaning, spelling/capitalization fixes |
+| **Cortex AI_COMPLETE** | Text cleaning, spelling/capitalization fixes |
 | **Cortex TRANSLATE** | Multi-language to English translation |
 | **Cortex Analyst** | Natural language queries with AI agent |
 | **Snowflake Intelligence** | Unified agent interface for end users |
 | **Data Metric Functions** | Automated quality monitoring |
-| **Streams** | Change data capture for incremental processing |
-| **Tasks** | Scheduled daily pipeline execution |
+| **Streams + Tasks** | Change data capture for incremental processing |
+| **Dynamic Tables** | Modern alternative to Streams + Tasks (optional) |
 | **Streamlit** | Interactive data quality dashboard |
 | **Git Integration** | Deploy directly from GitHub repository |
 

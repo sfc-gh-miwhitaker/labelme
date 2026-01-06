@@ -74,7 +74,7 @@ with st.sidebar:
     # Refresh button
     if st.button("🔄 Refresh Data", use_container_width=True):
         st.cache_data.clear()
-        st.experimental_rerun()
+        st.rerun()
 
 # Cache data queries
 @st.cache_data(ttl=300)  # Cache for 5 minutes
